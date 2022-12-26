@@ -1,6 +1,9 @@
 import pymongo
 import datetime
 import csv
+import pprint
+
+printer = pprint.PrettyPrinter()
 
 with open("credentials.txt", "r") as f:
     user, password = f.read().splitlines()
@@ -73,3 +76,44 @@ def add_purchase(car_id, customer_id, method):
 #         cars.insert_many(documents)
 
 # add_car_data('cars.csv')
+
+# Queries
+
+# less than 30k
+result = cars.find({'MSRP': {'$lte': 30000}})
+# printer.pprint(list(result))
+
+# count number of cars
+result = cars.count_documents({})
+
+# older than 2000
+result = cars.count_documents({'Year': {'$lt': 2000}})
+
+# average price of all brands
+result = cars.aggregate([
+    {'$group':{
+        '_id': '$Make',
+        'count': {'$sum': 1},
+        'average price': {'$avg': '$MSRP'}
+    }
+    }
+])
+
+# most expensive car
+result = cars.find({}).sort([('MSRP', -1)]).limit(1)
+
+# average price of hondas newer than 2000 by model
+result = cars.aggregate([
+    {
+        '$match': {
+            'Make': {'$eq': 'Honda'},
+            'Year': {'$gt': 2000}
+        }
+    },
+    {
+        '$group': {
+            '_id': '$Model',
+            'average price': {'$avg': '$MSRP'}
+        }
+    }
+])
