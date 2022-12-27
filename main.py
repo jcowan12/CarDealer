@@ -117,3 +117,38 @@ result = cars.aggregate([
         }
     }
 ])
+
+def get_customer_info():
+    print('type in your info')
+    first_name = input('first name: ')
+    last_name = input('last name: ')
+    return first_name, last_name
+
+first, last = get_customer_info()
+customer_and_purchases = list(customers.aggregate([
+    {
+        '$match': {'First Name': first, 'Last Name': last}
+    },
+    {
+        '$lookup': {
+            'from': 'purchases',
+            'localField': '_id', 
+            'foreignField': 'Customer ID',
+            'as': 'Purchases'
+        }
+    }
+]))
+
+# two customers with same name
+for i, customer in enumerate(customer_and_purchases):
+    print(f"{i+1}. {customer['First Name']} {customer['Last Name']}, {customer['Date of Birth']}")
+
+# select user
+selection = input('Select customer number: ')
+customer = customer_and_purchases[int(selection) - 1]
+
+print(f"Customer has purchased {len(customer['Purchases'])} cars")
+for i, entry in enumerate(customer['Purchases']):
+    car_id = entry['Car ID']
+    car = cars.find_one({'_id': car_id})
+    print(f'{i+1}. {car}')
