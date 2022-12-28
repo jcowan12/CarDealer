@@ -1,3 +1,2 @@
 # CarDealer
-### Python, MongoDB, & more
-### In Development
+### Served as practice using MongoDB, Python, & MongoDB Queries
